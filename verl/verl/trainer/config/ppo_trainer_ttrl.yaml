@@ -1,0 +1,16 @@
+hydra:
+  searchpath:
+    - file://verl/trainer/config
+
+defaults:
+  - ppo_trainer
+  - _self_
+
+ttrl:
+  enable: false
+
+  # Number of rollouts per prompt, used for actual training
+  n_samples_per_prompt: ${actor_rollout_ref.rollout.n}
+
+  # Number of rollouts per prompt, used for label voting
+  n_votes_per_prompt: ${actor_rollout_ref.rollout.n}

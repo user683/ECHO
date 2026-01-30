@@ -1,0 +1,94 @@
+
+# Define environments
+ENV MAX_JOBS=32
+ENV DEBIAN_FRONTEND=noninteractive
+ENV NODE_OPTIONS=""
+ENV PIP_ROOT_USER_ACTION=ignore
+ENV HF_HUB_ENABLE_HF_TRANSFER="1"
+
+# Define installation arguments
+
+# Set apt source
+RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak && \
+    { \
+    echo "deb ${APT_SOURCE} jammy main restricted universe multiverse"; \
+    echo "deb ${APT_SOURCE} jammy-updates main restricted universe multiverse"; \
+    echo "deb ${APT_SOURCE} jammy-backports main restricted universe multiverse"; \
+    echo "deb ${APT_SOURCE} jammy-security main restricted universe multiverse"; \
+    } > /etc/apt/sources.list
+
+# Install systemctl
+RUN apt-get update && \
+    apt-get install -y -o Dpkg::Options::="--force-confdef" systemd && \
+    apt-get clean
+
+# Install tini
+RUN apt-get update && \
+    apt-get install -y tini aria2 && \
+    apt-get clean
+
+# Change pip source
+RUN pip config set global.index-url "${PIP_INDEX}" && \
+    pip config set global.extra-index-url "${PIP_INDEX}" && \
+    python -m pip install --upgrade pip
+
+# Uninstall nv-pytorch fork
+RUN pip uninstall -y torch torchvision torchaudio \
+    pytorch-quantization pytorch-triton torch-tensorrt \
+    xgboost transformer_engine flash_attn apex megatron-core grpcio
+
+# Reinstall CUDA 12.4
+
+    apt-get update && \
+    apt-get -y install cuda-toolkit-12-4 && \
+    update-alternatives --set cuda /usr/local/cuda-12.4 && \
+    rm -rf /usr/local/cuda-12.6
+
+# Install torch-2.6.0+cu124 + vllm-0.8.5.post1 + sglang-0.4.6.post5
+# torch-2.6.0+cu124: cxx11abi=False
+# torch-2.6.0+cu126: cxx11abi=True
+# Install sglang-0.4.6.post1 and torch-memory-saver
+
+RUN pip install --no-cache-dir "vllm==0.8.5.post1" "torch==2.6.0" "torchvision==0.21.0" "torchaudio==2.6.0" "tensordict==0.6.2" torchdata
+
+RUN pip install --no-cache-dir "transformers[hf_xet]>=4.51.0" accelerate datasets peft hf-transfer \
+    "numpy<2.0.0" "pyarrow>=15.0.0" pandas \
+
+# Install flash-attn-2.7.4.post1 (cxx11abi=False)
+    pip install --no-cache-dir flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
+
+# Fix packages
+
+# Install cudnn
+    apt-get update && \
+    apt-get -y install cudnn-cuda-12 && \
+
+
+# Install Apex
+    cd apex && \
+    pip install -v --disable-pip-version-check --no-cache-dir --no-build-isolation --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--cuda_ext" ./
+
+# Install TransformerEngine
+
+# Install Megatron-LM
+
+# Fix opencv
+RUN pip install opencv-python
+
+RUN pip install opencv-fixer && \
+    python -c "from opencv_fixer import AutoFix; AutoFix()"
+
+# Install verl
+
+# Reset pip config
+RUN pip config unset global.index-url && \
+    pip config unset global.extra-index-url
+
+    RUN apt-get update && \
+    apt-get install -y aria2 libfreeimage3 libfreeimage-dev zlib1g
+
+apt-get update && apt-get install -y libxcb-cursor0 && \
+dpkg -i ./nsight-systems-2025.3.1_2025.3.1.90-1_amd64.deb && \
+rm -rf /usr/local/cuda/bin/nsys && \
+rm -rf /usr/local/cuda/bin/nsys-ui && \
+rm nsight-systems-2025.3.1_2025.3.1.90-1_amd64.deb
