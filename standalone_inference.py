@@ -14,42 +14,42 @@ from verl.utils.reward_score.ttrl_math.math_utils import (
     grade_answer_sympy,
 )
 
-# ================= 配置区域 =================
-# 1. 基座模型路径 (用于加载 Tokenizer/模型)
+# ================= Configuration section =================
+# 1. Base model path (for loading tokenizer/model)
 BASE_MODEL_PATH = "/HOME/HDD_POOL/Qwen2.5-VL-7B"
 
-# 2. LoRA adapter 路径（使用基座模型 + LoRA 推理）
+# 2. LoRA adapter path (base model + LoRA inference)
 LORA_PATH = "/HOME/HDD_POOL/ttrl_vision/verl/checkpoints/TTRL-verl/geoQA-Qwen2.5-VL-7B/0108/TTRL-Len@3k-grpo-163636/global_step_654/actor/lora_adapter"
 LORA_NAME = "ttrl_lora"
 LORA_INT_ID = 1
 
-# 3. 测试集路径
+# 3. Test set path
 DATA_PATH = "/HOME/HDD_POOL/ttrl_vision/verl/data/MathVision/test.json"
 
-# 4. 输出文件
+# 4. Output file
 OUTPUT_FILE = "inference_results_math_vision.json"
 
-# 5. 推理参数配置
+# 5. Inference parameter config
 INFERENCE_CONFIG = {
-    "num_samples": 1,          # 每个问题生成的样本数 (Pass@16)
-    "max_tokens": 2048,         # 最大生成长度
-    "temperature": 0.7,         # 温度系数
+    "num_samples": 1,          # Samples per question (Pass@16)
+    "max_tokens": 2048,         # Max generation length
+    "temperature": 0.7,         # Temperature
     "top_p": 0.9,               # Nucleus sampling
     "top_k": 50,                # Top-k sampling
-    "repetition_penalty": 1.0,  # 重复惩罚
+    "repetition_penalty": 1.0,  # Repetition penalty
 }
 
-# 6. vLLM 系统配置
+# 6. vLLM system config
 SYSTEM_CONFIG = {
     "tensor_parallel_size": 1,
     "gpu_memory_utilization": 0.90,
     "enforce_eager": False
 }
 
-# 7. 调试与输出设置
-VERBOSE = True                  # 是否打印详细的生成结果
-SHOW_FULL_RESPONSE = False      # 是否打印完整的回复文本 (如果 False 只打印提取的答案)
-USE_IMAGES = True               # 是否包含图像（多模态数据集）
+# 7. Debug/output settings
+VERBOSE = True                  # Whether to print detailed generations
+SHOW_FULL_RESPONSE = False      # Whether to print full responses (if False, only extracted answers)
+USE_IMAGES = True               # Whether to include images (multimodal dataset)
 # ===========================================
 
 def extract_answer(text):
@@ -90,7 +90,7 @@ def check_correctness(pred, gold):
     if pred_norm == gold_norm:
         return True
 
-    # 忽略大小写（用于 A/B/C/D 选项等简单字符串）
+    # Case-insensitive match (for simple strings like A/B/C/D choices)
     if pred_norm.lower() == gold_norm.lower():
         return True
 
@@ -106,7 +106,7 @@ def check_correctness(pred, gold):
             if any(pred_norm == normalize_answer(num) for num in gold_numbers):
                 return True
 
-    # 更严格的数学等价判断
+    # Stricter math equivalence check
     try:
         if grade_answer_mathd(pred_norm, gold_norm):
             return True
@@ -154,7 +154,7 @@ def main():
             print(f"Error loading processor: {e}")
             return
 
-    # 预处理 Prompts (应用 Chat Template)
+    # Preprocess prompts (apply chat template)
     print("Formatting prompts with chat template...")
     formatted_prompts = []
     image_inputs = []

@@ -263,7 +263,7 @@ def main():
         first_split = next(iter(ds.keys()))
         print(ds[first_split].column_names)
 
-        print(f"写入图片到: {images_dir}")
+        print(f"Writing images to: {images_dir}")
         os.makedirs(images_dir, exist_ok=True)
 
         train_split = args.train_split

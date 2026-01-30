@@ -848,13 +848,13 @@ class RayPPOTrainer:
 
     def init_workers(self):
         """Initialize distributed training workers using Ray backend.
-           用于初始化基于Ray后端的分布式训练工作节点
+           Used to initialize Ray-backend distributed training workers.
 
         Creates:
         1. Ray resource pools from configuration
         2. Worker groups for each role (actor, critic, etc.)
         """
-        self.resource_pool_manager.create_resource_pool()  # 创建资源次池
+        self.resource_pool_manager.create_resource_pool()  # Create resource pools
 
         self.resource_pool_to_cls = {pool: {} for pool in self.resource_pool_manager.resource_pool_dict.values()}
 
@@ -908,15 +908,15 @@ class RayPPOTrainer:
                 OmegaConf.select(self.config.trainer, "worker_nsight_options")
             )
 
-        for resource_pool, class_dict in self.resource_pool_to_cls.items(): # 遍历资源池
-            worker_dict_cls = create_colocated_worker_cls(class_dict=class_dict) # 创建共置工作类
+        for resource_pool, class_dict in self.resource_pool_to_cls.items():  # Iterate resource pools
+            worker_dict_cls = create_colocated_worker_cls(class_dict=class_dict)  # Create colocated worker class
             wg_dict = self.ray_worker_group_cls(
                 resource_pool=resource_pool,
                 ray_cls_with_init=worker_dict_cls,
                 device_name=self.device_name,
                 **wg_kwargs,
             )
-            spawn_wg = wg_dict.spawn(prefix_set=class_dict.keys()) # 启动工作节点
+            spawn_wg = wg_dict.spawn(prefix_set=class_dict.keys())  # Spawn worker groups
             all_wg.update(spawn_wg)
 
         if self.use_critic:
@@ -1089,7 +1089,7 @@ class RayPPOTrainer:
 
         from verl.utils.tracking import Tracking
         
-        # 创建一个logger追踪器实例，主要功能包括：项目跟踪（通过project_name和experiment_name标识实验项目）
+        # Create a tracking logger (project tracking via project_name and experiment_name).
         logger = Tracking(
             project_name=self.config.trainer.project_name,
             experiment_name=self.config.trainer.experiment_name,

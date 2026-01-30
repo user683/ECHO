@@ -3,9 +3,9 @@ verl x Ascend
 
 Last updated: 06/17/2025.
 
-我们在 verl 上增加对华为昇腾设备的支持。
+We added support for Ascend devices in verl.
 
-硬件支持
+Supported hardware
 -----------------------------------
 
 Atlas 200T A2 Box16
@@ -13,10 +13,10 @@ Atlas 200T A2 Box16
 Atlas 900 A2 PODc
 
 
-安装
+Installation
 -----------------------------------
 
-基础环境准备
+Base environment setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 +-----------+-------------+
@@ -35,7 +35,7 @@ Atlas 900 A2 PODc
 vllm & vllm-ascend
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-为了能够在 verl 中正常使用 vllm，需使用以下命令编译安装 vllm 和 vllm-ascend。请注意根据机器类型区分安装方式。
+To use vllm in verl, build and install vllm and vllm-ascend with the following commands. Choose the installation steps based on your machine type.
 
 .. code-block:: bash
     
@@ -55,7 +55,7 @@ vllm & vllm-ascend
     export COMPILE_CUSTOM_KERNELS=1
     python setup.py install
 
-安装verl
+Install verl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
@@ -64,7 +64,7 @@ vllm & vllm-ascend
     pip install -r requirements-npu.txt
     pip install -e .
 
-其他三方库说明
+Notes on other third-party libraries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 +--------------+---------------+
@@ -79,26 +79,26 @@ vllm & vllm-ascend
 | tensordict   | 0.8.3 (ARM)   |
 +--------------+---------------+
 
-1. 支持通过 transformers 使能 --flash_attention_2， transformers 需大于等于 4.52.0版本。
-2. 不支持通过 flash_attn 使能 flash attention 加速。
-3. 不支持 liger-kernel 使能。
-4. 针对 ARM 服务器，tensordict 要求 0.8.3，可在依赖安装完成后再手动安装 tensordict。
-5. 针对 x86 服务器，需要安装 cpu 版本的 torchvision。
+1. You can enable `--flash_attention_2` via transformers; transformers must be >= 4.52.0.
+2. flash_attn is not supported for flash attention acceleration.
+3. liger-kernel is not supported.
+4. On ARM servers, tensordict must be 0.8.3; install it manually after dependencies if needed.
+5. On x86 servers, install the CPU version of torchvision.
 
 .. code-block:: bash
 
 
 
-快速开始
+Quickstart
 -----------------------------------
 
-1.下载数据集并将数据集预处理为parquet格式，以便包含计算RL奖励所需的必要字段
+1. Download the dataset and preprocess it into parquet to include required fields for RL reward computation.
 
 .. code-block:: bash
 
     python3 examples/data_preprocess/gsm8k.py --local_dir ~/data/gsm8k
 
-2.执行训练
+2. Run training
 
 .. code-block:: bash
 
@@ -146,7 +146,7 @@ vllm & vllm-ascend
         trainer.device=npu $@
 
 
-支持现状
+Current support status
 -----------------------------------
 
 +-----------+-------------------------+-------------+-------------------+----------------------+
@@ -160,26 +160,26 @@ vllm & vllm-ascend
 +-----------+-------------------------+-------------+-------------------+----------------------+
 +-----------+-------------------------+-------------+-------------------+----------------------+
 
-精度对比说明
+Accuracy comparison notes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 
-根据经验，对于 GRPO 等 RL 类算法，我们期望在相同配置下华为昇腾设备与 A100 的 rewards 平均绝对误差<= 4%，计算方式参考上图。
+Based on experience, for RL algorithms such as GRPO, we expect the mean absolute reward error to be <= 4% between Ascend devices and A100 under the same configuration. The calculation follows the figure above.
 
 
-吞吐对比说明
+Throughput comparison notes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Ascend npu 和 A100 分别取日志中前4个 step 的 "perf/throughput" 做平均， throughput ratio = npu 平均值 / A100 平均值。 
+For Ascend NPU and A100, take the average of the first 4 steps' "perf/throughput" in the logs. Throughput ratio = average NPU / average A100.
 
 
 
-计划
+Plan
 -----------------------------------
 
 
 
 
-声明
+Disclaimer
 -----------------------------------
-verl中提供的ascend支持代码皆为参考样例，商业使用请通过官方正式途径沟通，谢谢。
+The Ascend support code provided in verl is for reference only. For commercial use, please contact the official channels.

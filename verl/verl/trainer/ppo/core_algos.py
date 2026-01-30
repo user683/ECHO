@@ -196,7 +196,7 @@ def compute_gae_advantage_return(
         advantages = verl_F.masked_whiten(advantages, response_mask)
     return advantages, returns
 
-# 从配置对象中获取指定键的值，如果找不到则返回默认值
+# Get a value from a config object by key, with a default fallback.
 def _cfg_get(cfg, key, default):
     if cfg is None:
         return default
@@ -209,7 +209,7 @@ def _cfg_get(cfg, key, default):
     except Exception:
         return default
 
-# 计算序列尾部片段的平均执行度
+# Compute the average confidence over the tail window.
 def _compute_tail_confidence(confidence: torch.Tensor, mask: torch.Tensor, tail_window: int) -> torch.Tensor:
     device = confidence.device
     tail_mask = torch.zeros_like(mask, dtype=confidence.dtype)
@@ -228,7 +228,7 @@ def _compute_tail_confidence(confidence: torch.Tensor, mask: torch.Tensor, tail_
     tail_conf = torch.clamp(tail_conf, min=0.0, max=1.0)
     return tail_conf.to(device=device, dtype=confidence.dtype)
 
-# 根据分组ID计算每组的平均值，并将该平均值广播会原张量的对应位置
+# Compute per-group means by group ID and broadcast back to the original tensor.
 def _broadcast_group_mean(values: torch.Tensor, mask: torch.Tensor, group_ids) -> torch.Tensor:
     if group_ids is None:
         return torch.zeros_like(values)

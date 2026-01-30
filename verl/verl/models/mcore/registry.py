@@ -133,7 +133,8 @@ def get_supported_model(model_type: str) -> SupportedModel:
 def hf_to_mcore_config(
     hf_config: PretrainedConfig, dtype: torch.dtype, **override_transformer_config_kwargs
 ) -> TransformerConfig:
-
+    """
+    Convert HuggingFace config to mcore config.
     Args:
         hf_config: The huggingface PretrainedConfig.
         dtype: The dtype of the model.

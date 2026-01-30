@@ -22,7 +22,7 @@ from omegaconf import OmegaConf
 from verl.trainer.ppo.ray_trainer import RayPPOTrainer
 from verl.trainer.ppo.reward import load_reward_manager
 
-# 程序入口和配置管理，从而指定配置路径加载训练配置
+# Program entry and config management to load training config from a specified path.
 @hydra.main(config_path="config", config_name="ppo_trainer", version_base=None)
 def main(config):
     run_ppo(config)
@@ -47,7 +47,7 @@ def run_ppo(config) -> None:
             },
             num_cpus=config.ray_init.num_cpus,
         )
-        # 初始化ray分布式计算环境
+        # Initialize the Ray distributed runtime
 
     # Create a remote instance of the TaskRunner class, and
     if (
@@ -95,7 +95,7 @@ class TaskRunner:
         tokenizer = hf_tokenizer(local_path, trust_remote_code=trust_remote_code)
         # Used for multimodal LLM, could be None
         processor = hf_processor(local_path, trust_remote_code=trust_remote_code, use_fast=True)
-        # 确保模型能够正确处理输入数据
+        # Ensure the model can properly process inputs
 
         # Version validation for vllm.
         if config.actor_rollout_ref.rollout.name in ["vllm"]:
@@ -106,8 +106,8 @@ class TaskRunner:
                     raise NotImplementedError("PPO LoRA is not supported before vllm 0.7.3")
 
         # Define worker classes based on the actor strategy.
-        # 这段代码根据配置中指定的分布式训练策略（fsdp/fsdp2 或 megatron），动态导入相应的 Worker 类和 Ray 工作组类，
-        # 并设置 actor rollout 的执行模式（同步或异步）。若策略不被支持，则抛出 NotImplementedError。
+        # Select worker classes based on the configured distributed strategy (fsdp/fsdp2 or megatron),
+        # and set actor rollout execution mode (sync/async). Raise NotImplementedError if unsupported.
         if config.actor_rollout_ref.actor.strategy in ["fsdp", "fsdp2"]:
             assert config.critic.strategy in ["fsdp", "fsdp2"]
             from verl.single_controller.ray import RayWorkerGroup
@@ -137,8 +137,8 @@ class TaskRunner:
 
         from verl.trainer.ppo.ray_trainer import ResourcePoolManager, Role
 
-        # 这段代码定义类任务运行器中的角色与资源映射配置：
-        # （1）角色工作类映射：将ActorRollout和Critic角色分别映射到对应的Ray远程工作类
+        # Define role-to-resource mapping for the task runner:
+        # (1) Map ActorRollout and Critic roles to their Ray remote worker classes.
 
         # Map roles to their corresponding remote worker classes.
         role_worker_mapping = {
@@ -148,7 +148,7 @@ class TaskRunner:
 
         # Define the resource pool specification.
         # Map roles to the resource pool.
-        # 资源配置：定义全局资源池，指定每个节点的GPU数量
+        # Resource config: define the global resource pool and GPUs per node.
         global_pool_id = "global_pool"
         resource_pool_spec = {
             global_pool_id: [config.trainer.n_gpus_per_node] * config.trainer.nnodes,
@@ -232,8 +232,8 @@ def create_rl_dataset(data_paths, data_config, tokenizer, processor):
 
     from verl.utils.dataset.rl_dataset import RLHFDataset
 
-    # 该函数用于创建强化学习数据集。首先检查配置中是否指定了自定义数据集类，若有则动态加载并验证其继承自`Dataset`，
-    # 否则使用默认的[RLHFDataset]，最后实例化并返回对应的数据集对象。
+    # Create the RL dataset. If a custom dataset class is configured, load it and
+    # validate it inherits from `Dataset`; otherwise use the default RLHFDataset.
 
     # Check if a custom dataset class is specified in the data configuration
     # and if the path to the custom class is provided
@@ -263,8 +263,8 @@ def create_rl_dataset(data_paths, data_config, tokenizer, processor):
 
     return dataset
 
-# 该函数根据数据配置创建数据采样器。如果启用shuffle，则使用随机采样器并设置种子以支持检查点恢复；
-# 否则使用顺序采样器按顺序遍历数据集
+# Create a sampler from data config. If shuffle is enabled, use a random sampler
+# with a fixed seed for checkpoint resume; otherwise use a sequential sampler.
 def create_rl_sampler(data_config, dataset):
     """Create a sampler for the dataset.
 

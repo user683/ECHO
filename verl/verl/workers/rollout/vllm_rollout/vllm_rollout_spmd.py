@@ -77,7 +77,7 @@ logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 
 # NOTE(sgm): add for verl. We can optimize it by making the dataloader yield List[int] without padding.
-# 预处理输入的token id序列，去除左侧的padding部分
+# Preprocess input token ID sequences by removing left padding.
 def _pre_process_inputs(pad_token_id, prompt_token_ids: torch.Tensor) -> List[int]:
     # remove the left padding in the prompt token_id
     # pad_token_id = self.llm_engine.tokenizer.pad_token_id if self.llm_engine.tokenizer.pad_token_id
@@ -86,7 +86,7 @@ def _pre_process_inputs(pad_token_id, prompt_token_ids: torch.Tensor) -> List[in
     token_ids = prompt_token_ids[non_pad_index:].tolist()
     return token_ids
 
-# 将输入的张量或数组按指定次数在第0维方向重复
+# Repeat input tensors/arrays along dim 0 for the given count.
 def _repeat_interleave(value: Union[torch.Tensor, np.ndarray], repeats: int) -> Union[torch.Tensor, List[Any]]:
     if isinstance(value, torch.Tensor):
         return value.repeat_interleave(repeats, dim=0)
@@ -172,8 +172,8 @@ class vLLMRollout(BaseRollout):
                              please increase max_num_batched_tokens or disable chunked prefill"
             )
 
-        trust_remote_code = kwargs.get("trust_remote_code", False)  # 控制是否允许执行远程代码
-        load_format = "dummy" if config.load_format.startswith("dummy") else config.load_format # 指定模型权重和加载格式
+        trust_remote_code = kwargs.get("trust_remote_code", False)  # Whether to allow remote code execution
+        load_format = "dummy" if config.load_format.startswith("dummy") else config.load_format  # Model weight load format
 
         lora_kwargs = kwargs.pop("lora_kwargs", {})
         self.lora_kwargs = lora_kwargs
@@ -182,16 +182,16 @@ class vLLMRollout(BaseRollout):
             {}
             if "engine_kwargs" not in config or "vllm" not in config.engine_kwargs
             else OmegaConf.to_container(deepcopy(config.engine_kwargs.vllm))
-        )  # 从配置中提取vLLM引擎的额外参数
+        )  # Extra vLLM engine parameters from config
 
         # For each vLLM engine parameter,
         # - `None` means not setting it, so we pop it, and leave it to vLLM default value
         #    (which can vary across different vLLM versions);
         # - Otherwise it's the desired value we want to explicitly set.
-        engine_kwargs = {key: val for key, val in engine_kwargs.items() if val is not None}  # 过滤掉值为None的参数
+        engine_kwargs = {key: val for key, val in engine_kwargs.items() if val is not None}  # Drop None values
         if config.get("limit_images", None):  # support for multi-image data
-            engine_kwargs["limit_mm_per_prompt"] = {"image": config.get("limit_images")} 
-            # 允许模型处理包含图像的输入数据，限制每个prompt最多可以包含几张图片
+            engine_kwargs["limit_mm_per_prompt"] = {"image": config.get("limit_images")}
+            # Allow image inputs and limit images per prompt
 
         self.inference_engine = LLM(
             model=model_path,
@@ -224,7 +224,7 @@ class vLLMRollout(BaseRollout):
             logprobs=0,  # can be set to 0 and let actor to recompute
             max_tokens=config.response_length,
         )
-        # kwargs参数初始化
+        # Initialize kwargs
 
         kwargs["detokenize"] = False
 
