@@ -53,7 +53,7 @@ bash ECHO/verl/examples/ttrl_echo/Qwen2.5/aime.sh
 Merge Checkpoint in Hugging Face Format：
 
 ```
-bash 
+bash merge_ckptpoint.sh
 ```
 
 For standalone testing, you can use the batch evaluation script:
