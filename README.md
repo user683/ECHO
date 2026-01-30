@@ -97,7 +97,7 @@ leading to reliable and sustained improvements in reasoning.
 
 --------
 
-We compare our method against the following baselines: [TTRL](https://github.com/PRIME-RL/TTRL), [MM-UPT](https://github.com/waltonfuture/MM-UPT), [EVOL-RL](https://github.com/YujunZhou/EVOL-RL/tree/main), [Intuitor](https://github.com/sunblaze-ucb/Intuitor).
+We compare our method against the following baselines: [TTRL](https://github.com/PRIME-RL/TTRL), [ETMR](https://arxiv.org/abs/2508.11356),  [EVOL-RL](https://github.com/YujunZhou/EVOL-RL/tree/main), [Intuitor](https://github.com/sunblaze-ucb/Intuitor).
 
 # 🎁 Acknowledgment
 
